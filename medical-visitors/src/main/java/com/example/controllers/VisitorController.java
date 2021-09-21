@@ -1,6 +1,7 @@
 package com.example.controllers;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +33,18 @@ public class VisitorController {
 	@Autowired
 	VisitorRepository _visitorRepository;
 
+	@GetMapping("/all")
+	public ResponseEntity<?> findAll() {
+		try {
+			List<Visitor> visitors = _visitorRepository.findAll();
+
+			return new ResponseEntity<>(visitors, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+	}
+
 	@PostMapping("/login")
 	public ResponseEntity<?> visitorLogin(@RequestBody Visitor body) {
 		try {
@@ -45,6 +59,27 @@ public class VisitorController {
 			} else {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/set-status/{id}")
+	public ResponseEntity<?> setActiveStatus(@PathVariable Long id) {
+		try {
+			Optional<Visitor> _visitor = _visitorRepository.findById(id);
+			if (_visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Visitor visitor = _visitor.get();
+			visitor.setIsActive(true);
+
+			_visitorRepository.save(visitor);
+			return new ResponseEntity<>(visitor, HttpStatus.OK);
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			return null;

@@ -1,6 +1,11 @@
 package com.example.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "hospitals")
@@ -20,6 +25,13 @@ public class Hospital {
 
 	@Column(name = "password")
 	private String password;
+
+	@Column(name = "free_day")
+	private int freeDay;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "hospital", cascade = CascadeType.ALL)
+	@JsonIgnoreProperties("hospital")
+	private List<Doctor> doctorList = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -51,6 +63,30 @@ public class Hospital {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public List<Doctor> getDoctorList() {
+		return doctorList;
+	}
+
+	public void setDoctorList(List<Doctor> doctorList) {
+		this.doctorList = doctorList;
+	}
+
+	public int getFreeDay() {
+		return freeDay;
+	}
+
+	public void setFreeDay(int freeDay) {
+		this.freeDay = freeDay;
 	}
 
 	@Override

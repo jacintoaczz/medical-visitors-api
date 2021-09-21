@@ -27,6 +27,17 @@ public class Visitor {
 	@Column(name = "is_paid")
 	private Boolean isPaid;
 
+	@Column(name = "is_active")
+	private Boolean isActive;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -75,10 +86,18 @@ public class Visitor {
 		this.isPaid = isPaid;
 	}
 
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
 	@Override
 	public String toString() {
 		return "Visitor [id=" + id + ", name=" + name + ", lastName=" + lastName + ", email=" + email + ", company="
-				+ company + ", password=" + password + ", isPaid=" + isPaid + "]";
+				+ company + ", password=" + password + ", isPaid=" + isPaid + ", isActive=" + isActive + "]";
 	}
 
 }
