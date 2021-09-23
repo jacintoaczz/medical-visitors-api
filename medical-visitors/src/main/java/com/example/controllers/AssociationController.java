@@ -43,7 +43,7 @@ public class AssociationController {
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
-			return null;
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}

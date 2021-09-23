@@ -45,6 +45,33 @@ public class VisitorController {
 		}
 	}
 
+	@PostMapping("/create")
+	public ResponseEntity<?> createVisitor(@RequestBody Visitor body) {
+		try {
+			Visitor _visitor = new Visitor();
+
+			Optional<Visitor> visitor = _visitorRepository.findByEmail(body.getEmail());
+			if(!visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
+			
+			_visitor.setName(body.getName());
+			_visitor.setLastName(body.getLastName());
+			_visitor.setEmail(body.getEmail());
+			_visitor.setCompany(body.getCompany());
+			_visitor.setIsPaid(false);
+			_visitor.setIsActive(false);
+
+			_visitorRepository.save(_visitor);
+
+			return new ResponseEntity<>(null, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+
 	@PostMapping("/login")
 	public ResponseEntity<?> visitorLogin(@RequestBody Visitor body) {
 		try {

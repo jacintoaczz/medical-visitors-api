@@ -1,6 +1,11 @@
 package com.example.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "visitors")
@@ -29,6 +34,10 @@ public class Visitor {
 
 	@Column(name = "is_active")
 	private Boolean isActive;
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "visitor", cascade = CascadeType.ALL)
+	@JsonIgnoreProperties("visitor")
+	private List<Appointment> appointmentList = new ArrayList<>();
 
 	public long getId() {
 		return id;
@@ -93,11 +102,23 @@ public class Visitor {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
+	
+	
 
+	public List<Appointment> getAppointmentList() {
+		return appointmentList;
+	}
+
+	public void setAppointmentList(List<Appointment> appointmentList) {
+		this.appointmentList = appointmentList;
+	}
+
+	
 	@Override
 	public String toString() {
 		return "Visitor [id=" + id + ", name=" + name + ", lastName=" + lastName + ", email=" + email + ", company="
-				+ company + ", password=" + password + ", isPaid=" + isPaid + ", isActive=" + isActive + "]";
+				+ company + ", password=" + password + ", isPaid=" + isPaid + ", isActive=" + isActive
+				+ ", appointmentList=" + appointmentList + "]";
 	}
 
 }

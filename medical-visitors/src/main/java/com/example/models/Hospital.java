@@ -92,7 +92,7 @@ public class Hospital {
 	@Override
 	public String toString() {
 		return "Hospital [id=" + id + ", name=" + name + ", address=" + address + ", email=" + email + ", password="
-				+ password + "]";
+				+ password + ", freeDay=" + freeDay + ", doctorList=" + doctorList + "]";
 	}
 
 }
