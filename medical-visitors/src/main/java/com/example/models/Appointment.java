@@ -24,6 +24,12 @@ public class Appointment {
 	@Temporal(TemporalType.TIME)
 	private Date time;
 
+	@Column(name = "is_accepted")
+	private Boolean isAccepted;
+
+	@Column(name = "is_pending")
+	private Boolean isPending;
+
 	@ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
 	@JoinColumn(name = "doctor_id", referencedColumnName = "doctorId")
 	@JsonIgnoreProperties("appointmentList")
@@ -74,10 +80,25 @@ public class Appointment {
 		this.visitor = visitor;
 	}
 
+	public Boolean getIsAccepted() {
+		return isAccepted;
+	}
+
+	public void setIsAccepted(Boolean isAccepted) {
+		this.isAccepted = isAccepted;
+	}
+
+	public Boolean getIsPending() {
+		return isPending;
+	}
+
+	public void setIsPending(Boolean isPending) {
+		this.isPending = isPending;
+	}
+
 	@Override
 	public String toString() {
-		return "Appointment [id=" + id + ", date=" + date + ", time=" + time + ", doctor=" + doctor + ", visitor="
-				+ visitor + "]";
+		return "Appointment [id=" + id + ", date=" + date + ", time=" + time + "";
 	}
 
 }

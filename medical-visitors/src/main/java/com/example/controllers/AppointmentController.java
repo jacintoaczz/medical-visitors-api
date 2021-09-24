@@ -60,20 +60,86 @@ public class AppointmentController {
 		try {
 			Optional<Doctor> _doctor = _doctorRepository.findById(body.getDoctor().getDoctorId());
 
+			Long count = _appointmentRepository.countVisitorsOnADate(body.getDate());
+			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByCompany(body.getVisitor().getCompany(),
+					body.getDate());
+
+			System.out.println("Conteo de visitadores en el dia: " + count);
+			System.out.println("Conteo de visitadores en el mes: " + monthlyCount);
+
+			if (count == null) {
+				count = (long) 0;
+			}
+
+			if (monthlyCount == null) {
+				monthlyCount = (long) 0;
+			}
+			// There can't be more than 2 visitors on a hospital on the same day
+			if (count == 2) {
+				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
+			// A company can't visit a hospital more than 2 times per month
+			if (monthlyCount == 2) {
+				return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+			}
 			Appointment newAppointment = new Appointment();
 
 			newAppointment.setDate(body.getDate());
 			newAppointment.setTime(body.getTime());
 			newAppointment.setDoctor(_doctor.get());
 			newAppointment.setVisitor(body.getVisitor());
+			newAppointment.setIsPending(true);
+			newAppointment.setIsAccepted(false);
 
-			System.out.println("New appointment: " + newAppointment);
 			Appointment _new = _appointmentRepository.save(newAppointment);
-
 			return new ResponseEntity<>(_new, HttpStatus.OK);
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("Exception: " + e);
+			return null;
+		}
+
+	}
+
+	@PutMapping("/accept/{id}")
+	public ResponseEntity<?> acceptAppointment(@PathVariable Long id) {
+		try {
+			Optional<Appointment> _visitor = _appointmentRepository.findById(id);
+			if (_visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Appointment appointment = _visitor.get();
+			appointment.setIsPending(false);
+			appointment.setIsAccepted(true);
+
+			_appointmentRepository.save(appointment);
+			return new ResponseEntity<>(appointment, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/reject/{id}")
+	public ResponseEntity<?> rejectAppointment(@PathVariable Long id) {
+		try {
+			Optional<Appointment> _visitor = _appointmentRepository.findById(id);
+			if (_visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Appointment appointment = _visitor.get();
+			appointment.setIsPending(false);
+			appointment.setIsAccepted(false);
+
+			_appointmentRepository.save(appointment);
+			return new ResponseEntity<>(appointment, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
 			return null;
 		}
 

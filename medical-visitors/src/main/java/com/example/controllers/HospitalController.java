@@ -2,12 +2,14 @@ package com.example.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,40 @@ public class HospitalController {
 			List<Hospital> hospitals = _hospitalRepository.findAll();
 
 			return new ResponseEntity<>(hospitals, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getById(@PathVariable Long id) {
+		try {
+			Optional<Hospital> hospitals = _hospitalRepository.findById(id);
+
+			return new ResponseEntity<>(hospitals, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PostMapping("/login")
+	public ResponseEntity<?> hospitalLogin(@RequestBody Hospital body) {
+		try {
+			Optional<Hospital> _hospital = _hospitalRepository.findByEmail(body.getEmail());
+			if (_hospital.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Hospital hospital = _hospital.get();
+			if (hospital.getPassword().equals(body.getPassword())) {
+				return new ResponseEntity<>(hospital, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			return null;

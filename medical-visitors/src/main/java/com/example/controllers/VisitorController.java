@@ -51,14 +51,15 @@ public class VisitorController {
 			Visitor _visitor = new Visitor();
 
 			Optional<Visitor> visitor = _visitorRepository.findByEmail(body.getEmail());
-			if(!visitor.isEmpty()) {
+			if (!visitor.isEmpty()) {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 			}
-			
+
 			_visitor.setName(body.getName());
 			_visitor.setLastName(body.getLastName());
 			_visitor.setEmail(body.getEmail());
 			_visitor.setCompany(body.getCompany());
+			_visitor.setPassword(body.getPassword());
 			_visitor.setIsPaid(false);
 			_visitor.setIsActive(false);
 
