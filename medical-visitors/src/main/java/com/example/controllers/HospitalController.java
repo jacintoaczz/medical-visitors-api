@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.models.Appointment;
 import com.example.models.Association;
 import com.example.models.Doctor;
 import com.example.models.Hospital;
@@ -33,7 +35,7 @@ public class HospitalController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAll() {
 		try {
-			List<Hospital> hospitals = _hospitalRepository.findAll();
+			List<Hospital> hospitals = _hospitalRepository.findAllValidHospitals();
 
 			return new ResponseEntity<>(hospitals, HttpStatus.OK);
 		} catch (Exception e) {
@@ -59,7 +61,7 @@ public class HospitalController {
 	@PostMapping("/login")
 	public ResponseEntity<?> hospitalLogin(@RequestBody Hospital body) {
 		try {
-			Optional<Hospital> _hospital = _hospitalRepository.findByEmail(body.getEmail());
+			Optional<Hospital> _hospital = _hospitalRepository.findByEmailAndIsDeleted(body.getEmail(), false);
 			if (_hospital.isEmpty()) {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
@@ -82,9 +84,17 @@ public class HospitalController {
 		try {
 			List<Doctor> doctorsList = new ArrayList<>();
 
-			Optional<Hospital> hospital = _hospitalRepository.findByEmail(body.getEmail());
-			if (!hospital.isEmpty()) {
+			List<Hospital> hospital = _hospitalRepository.findValidHospitalsByEmail(body.getEmail());
+			List<Hospital> _hospital = _hospitalRepository.findValidHospitalsByName(body.getName());
+
+			System.out.println("Size: " + _hospital.size());
+
+			if (hospital.size() > 0) {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
+
+			if (_hospital.size() > 0) {
+				return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
 			}
 
 			// We create a new hospital to save in the database
@@ -94,6 +104,7 @@ public class HospitalController {
 			newHospital.setEmail(body.getEmail());
 			newHospital.setPassword(body.getPassword());
 			newHospital.setFreeDay(body.getFreeDay());
+			newHospital.setIsDeleted(false);
 
 			// Now we add all the doctors
 			List<Doctor> doctorsArray = body.getDoctorList();
@@ -110,6 +121,48 @@ public class HospitalController {
 
 			Hospital savedHospital = _hospitalRepository.save(newHospital);
 			return new ResponseEntity<>(savedHospital, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/delete/{id}")
+	public ResponseEntity<?> deleteHospital(@PathVariable Long id) {
+		try {
+			Optional<Hospital> hospital = _hospitalRepository.findById(id);
+
+			hospital.get().setIsDeleted(true);
+
+			_hospitalRepository.save(hospital.get());
+			return new ResponseEntity<>(null, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/{id}/add-doctor")
+	public ResponseEntity<?> addDoctor(@PathVariable Long id, @RequestBody Doctor body) {
+		try {
+			Optional<Hospital> hospital = _hospitalRepository.findById(id);
+			List<Doctor> doctorsList = hospital.get().getDoctorList();
+			Doctor newDoctor = new Doctor();
+
+			newDoctor.setName(body.getName());
+			newDoctor.setLastName(body.getLastName());
+			newDoctor.setHospital(hospital.get());
+
+			doctorsList.add(newDoctor);
+
+			hospital.get().setDoctorList(doctorsList);
+
+			Hospital savedHospital = _hospitalRepository.save(hospital.get());
+			return new ResponseEntity<>(savedHospital, HttpStatus.OK);
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			return null;

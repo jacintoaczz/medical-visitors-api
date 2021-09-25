@@ -53,7 +53,6 @@ public class AppointmentController {
 			// TODO: handle exception
 			return null;
 		}
-
 	}
 
 	@PostMapping("/create")

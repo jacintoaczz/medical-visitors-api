@@ -34,7 +34,10 @@ public class Visitor {
 
 	@Column(name = "is_active")
 	private Boolean isActive;
-	
+
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
+
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "visitor", cascade = CascadeType.ALL)
 	@JsonIgnoreProperties("visitor")
 	private List<Appointment> appointmentList = new ArrayList<>();
@@ -102,8 +105,6 @@ public class Visitor {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
-	
-	
 
 	public List<Appointment> getAppointmentList() {
 		return appointmentList;
@@ -113,7 +114,14 @@ public class Visitor {
 		this.appointmentList = appointmentList;
 	}
 
-	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	@Override
 	public String toString() {
 		return "Visitor [id=" + id + ", name=" + name + ", lastName=" + lastName + ", email=" + email + ", company="

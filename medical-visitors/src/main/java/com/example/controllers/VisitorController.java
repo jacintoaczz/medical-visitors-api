@@ -36,7 +36,7 @@ public class VisitorController {
 	@GetMapping("/all")
 	public ResponseEntity<?> findAll() {
 		try {
-			List<Visitor> visitors = _visitorRepository.findAll();
+			List<Visitor> visitors = _visitorRepository.findAllValidVisitors();
 
 			return new ResponseEntity<>(visitors, HttpStatus.OK);
 		} catch (Exception e) {
@@ -50,7 +50,7 @@ public class VisitorController {
 		try {
 			Visitor _visitor = new Visitor();
 
-			Optional<Visitor> visitor = _visitorRepository.findByEmail(body.getEmail());
+			Optional<Visitor> visitor = _visitorRepository.findByEmailAndIsDeleted(body.getEmail(), false);
 			if (!visitor.isEmpty()) {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 			}
@@ -62,6 +62,7 @@ public class VisitorController {
 			_visitor.setPassword(body.getPassword());
 			_visitor.setIsPaid(false);
 			_visitor.setIsActive(false);
+			_visitor.setIsDeleted(false);
 
 			_visitorRepository.save(_visitor);
 
@@ -76,7 +77,7 @@ public class VisitorController {
 	@PostMapping("/login")
 	public ResponseEntity<?> visitorLogin(@RequestBody Visitor body) {
 		try {
-			Optional<Visitor> _visitor = _visitorRepository.findByEmail(body.getEmail());
+			Optional<Visitor> _visitor = _visitorRepository.findByEmailAndIsDeleted(body.getEmail(), false);
 			if (_visitor.isEmpty()) {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
@@ -104,6 +105,49 @@ public class VisitorController {
 
 			Visitor visitor = _visitor.get();
 			visitor.setIsActive(true);
+
+			_visitorRepository.save(visitor);
+			return new ResponseEntity<>(visitor, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/set-paid-status/{id}")
+	public ResponseEntity<?> setPaidStatus(@PathVariable Long id) {
+		try {
+			Optional<Visitor> _visitor = _visitorRepository.findById(id);
+			if (_visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Visitor visitor = _visitor.get();
+			visitor.setIsPaid(true);
+
+			_visitorRepository.save(visitor);
+			return new ResponseEntity<>(visitor, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+
+	}
+
+	@PutMapping("/delete/{id}")
+	public ResponseEntity<?> delete(@PathVariable Long id) {
+		try {
+			Optional<Visitor> _visitor = _visitorRepository.findById(id);
+			if (_visitor.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Visitor visitor = _visitor.get();
+			visitor.setIsActive(false);
+			visitor.setIsDeleted(true);
 
 			_visitorRepository.save(visitor);
 			return new ResponseEntity<>(visitor, HttpStatus.OK);

@@ -29,6 +29,9 @@ public class Hospital {
 	@Column(name = "free_day")
 	private int freeDay;
 
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
+
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "hospital", cascade = CascadeType.ALL)
 	@JsonIgnoreProperties("hospital")
 	private List<Doctor> doctorList = new ArrayList<>();
@@ -87,6 +90,14 @@ public class Hospital {
 
 	public void setFreeDay(int freeDay) {
 		this.freeDay = freeDay;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
