@@ -87,9 +87,10 @@ public class AppointmentController {
 
 	}
 
-	@PutMapping("/accept/date={id}&visitor={visitorId}")
+	@PutMapping("/accept/{id}/{visitorId}")
 	public ResponseEntity<?> acceptAppointment(@PathVariable Long id, @PathVariable Long visitorId) {
 		try {
+			System.out.println("Holaaaa");
 			Optional<Appointment> _appointment = _appointmentRepository.findById(id);
 			Optional<Visitor> _visitor = _visitorRepository.findById(visitorId);
 			if (_appointment.isEmpty()) {
@@ -98,8 +99,9 @@ public class AppointmentController {
 
 			Hospital hospital = _appointment.get().getDoctor().getHospital();
 
+			System.out.println("Email: " + hospital.getEmail());
 			Long count = _appointmentRepository.countVisitorsOnADate(_appointment.get().getDate());
-			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByHospitalAndByCompany(hospital.getEmail(),
+			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByHospitalAndByCompany(hospital.getName(),
 					_visitor.get().getCompany(), _appointment.get().getDate());
 
 			System.out.println("Conteo de visitadores en el dia: " + count);
@@ -130,6 +132,7 @@ public class AppointmentController {
 
 		} catch (Exception e) {
 			// TODO: handle exception
+			System.out.println("Excepcion: " + e);
 			return null;
 		}
 

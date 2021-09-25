@@ -45,6 +45,18 @@ public class VisitorController {
 		}
 	}
 
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getOne(@PathVariable Long id) {
+		try {
+			Optional<Visitor> visitor = _visitorRepository.findById(id);
+
+			return new ResponseEntity<>(visitor, HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}
+	}
+
 	@PostMapping("/create")
 	public ResponseEntity<?> createVisitor(@RequestBody Visitor body) {
 		try {
