@@ -42,7 +42,7 @@ public class HospitalController {
 		}
 
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		try {
@@ -81,6 +81,11 @@ public class HospitalController {
 	public ResponseEntity<?> createHospital(@RequestBody Hospital body) {
 		try {
 			List<Doctor> doctorsList = new ArrayList<>();
+
+			Optional<Hospital> hospital = _hospitalRepository.findByEmail(body.getEmail());
+			if (!hospital.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
 
 			// We create a new hospital to save in the database
 			Hospital newHospital = new Hospital();

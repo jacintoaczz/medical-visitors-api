@@ -2,6 +2,7 @@ package com.example.controllers;
 
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +60,46 @@ public class AppointmentController {
 	public ResponseEntity<?> createAppointment(@RequestBody Appointment body) {
 		try {
 			Optional<Doctor> _doctor = _doctorRepository.findById(body.getDoctor().getDoctorId());
+			Appointment newAppointment = new Appointment();
 
-			Long count = _appointmentRepository.countVisitorsOnADate(body.getDate());
-			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByCompany(body.getVisitor().getCompany(),
-					body.getDate());
+			Calendar _calendar = Calendar.getInstance();
+			_calendar.setTime(body.getDate());
+			int day = _calendar.get(Calendar.DAY_OF_WEEK);
+
+			if (day == _doctor.get().getHospital().getFreeDay()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+			}
+
+			newAppointment.setDate(body.getDate());
+			newAppointment.setTime(body.getTime());
+			newAppointment.setDoctor(_doctor.get());
+			newAppointment.setVisitor(body.getVisitor());
+			newAppointment.setIsPending(true);
+			newAppointment.setIsAccepted(false);
+
+			Appointment _new = _appointmentRepository.save(newAppointment);
+			return new ResponseEntity<>(_new, HttpStatus.OK);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Exception: " + e);
+			return null;
+		}
+
+	}
+
+	@PutMapping("/accept/date={id}&visitor={visitorId}")
+	public ResponseEntity<?> acceptAppointment(@PathVariable Long id, @PathVariable Long visitorId) {
+		try {
+			Optional<Appointment> _appointment = _appointmentRepository.findById(id);
+			Optional<Visitor> _visitor = _visitorRepository.findById(visitorId);
+			if (_appointment.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			}
+
+			Long count = _appointmentRepository.countVisitorsOnADate(_appointment.get().getDate());
+			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByCompany(_visitor.get().getCompany(),
+					_appointment.get().getDate());
 
 			System.out.println("Conteo de visitadores en el dia: " + count);
 			System.out.println("Conteo de visitadores en el mes: " + monthlyCount);
@@ -82,34 +119,8 @@ public class AppointmentController {
 			if (monthlyCount == 2) {
 				return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
 			}
-			Appointment newAppointment = new Appointment();
 
-			newAppointment.setDate(body.getDate());
-			newAppointment.setTime(body.getTime());
-			newAppointment.setDoctor(_doctor.get());
-			newAppointment.setVisitor(body.getVisitor());
-			newAppointment.setIsPending(true);
-			newAppointment.setIsAccepted(false);
-
-			Appointment _new = _appointmentRepository.save(newAppointment);
-			return new ResponseEntity<>(_new, HttpStatus.OK);
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println("Exception: " + e);
-			return null;
-		}
-
-	}
-
-	@PutMapping("/accept/{id}")
-	public ResponseEntity<?> acceptAppointment(@PathVariable Long id) {
-		try {
-			Optional<Appointment> _visitor = _appointmentRepository.findById(id);
-			if (_visitor.isEmpty()) {
-				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-			}
-
-			Appointment appointment = _visitor.get();
+			Appointment appointment = _appointment.get();
 			appointment.setIsPending(false);
 			appointment.setIsAccepted(true);
 
