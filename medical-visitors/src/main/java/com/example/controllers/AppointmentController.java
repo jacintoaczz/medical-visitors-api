@@ -96,9 +96,11 @@ public class AppointmentController {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
 
+			Hospital hospital = _appointment.get().getDoctor().getHospital();
+
 			Long count = _appointmentRepository.countVisitorsOnADate(_appointment.get().getDate());
-			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByCompany(_visitor.get().getCompany(),
-					_appointment.get().getDate());
+			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByHospitalAndByCompany(hospital.getEmail(),
+					_visitor.get().getCompany(), _appointment.get().getDate());
 
 			System.out.println("Conteo de visitadores en el dia: " + count);
 			System.out.println("Conteo de visitadores en el mes: " + monthlyCount);
