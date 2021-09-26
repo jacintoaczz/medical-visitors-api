@@ -50,7 +50,7 @@ public class HospitalController {
 		try {
 			Optional<Hospital> hospitals = _hospitalRepository.findById(id);
 
-			return new ResponseEntity<>(hospitals, HttpStatus.OK);
+			return new ResponseEntity<>(hospitals.get(), HttpStatus.OK);
 		} catch (Exception e) {
 			// TODO: handle exception
 			return null;
@@ -87,7 +87,6 @@ public class HospitalController {
 			List<Hospital> hospital = _hospitalRepository.findValidHospitalsByEmail(body.getEmail());
 			List<Hospital> _hospital = _hospitalRepository.findValidHospitalsByName(body.getName());
 
-			System.out.println("Size: " + _hospital.size());
 
 			if (hospital.size() > 0) {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -149,16 +148,17 @@ public class HospitalController {
 	public ResponseEntity<?> addDoctor(@PathVariable Long id, @RequestBody Doctor body) {
 		try {
 			Optional<Hospital> hospital = _hospitalRepository.findById(id);
-			List<Doctor> doctorsList = hospital.get().getDoctorList();
+			List<Doctor> doctorList = hospital.get().getDoctorList();
 			Doctor newDoctor = new Doctor();
 
 			newDoctor.setName(body.getName());
 			newDoctor.setLastName(body.getLastName());
 			newDoctor.setHospital(hospital.get());
 
-			doctorsList.add(newDoctor);
+			doctorList.add(newDoctor);
 
-			hospital.get().setDoctorList(doctorsList);
+			hospital.get().setDoctorList(null);
+			hospital.get().setDoctorList(doctorList);
 
 			Hospital savedHospital = _hospitalRepository.save(hospital.get());
 			return new ResponseEntity<>(savedHospital, HttpStatus.OK);

@@ -99,7 +99,6 @@ public class AppointmentController {
 
 			Hospital hospital = _appointment.get().getDoctor().getHospital();
 
-			System.out.println("Email: " + hospital.getEmail());
 			Long count = _appointmentRepository.countVisitorsOnADate(_appointment.get().getDate());
 			Long monthlyCount = _appointmentRepository.countVisitorsOnMonthByHospitalAndByCompany(hospital.getName(),
 					_visitor.get().getCompany(), _appointment.get().getDate());
